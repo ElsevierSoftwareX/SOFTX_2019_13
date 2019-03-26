@@ -1,12 +1,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Tim Benkert                                   %
 %                           29.07.2018                                    %
+%                                                                         %
+%                        Florian Speckmaier                               %
+%                           08.02.2019                                    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % This function determines parameters of different extrapolation approaches
 % for experimental data.
 % Extrapolation Approaches
-% Ludwik
 % Ghosh
 % HockettSherby
 % Swift
@@ -24,7 +26,6 @@
 % all of them, use the type parameter. Pass a character array containing
 % the name of the extrapolation approaches. 
 % Available approaches are:
-% Ludwik
 % Ghosh
 % HockettSherby
 % Swift
@@ -40,12 +41,25 @@
 % extrapolation(inp, strainLabel, stressLabel, 'export', 'Swift')
 %
 % Output
-% The same as the input with the relevant spots filled with data.
+%
+% out
+% Is a cell array, that contains all values within the first row. The
+% second row contains the corresponding labels. It is longer than inp, as
+% the calculated data is attached to inp. 
 %
 % If there are any errors, out is empty.
+%
+%  UPDATE: 08.02.2019:
+%  Now the function gets the parameters for the extrapolation functions as
+%  an input variable: "expParameter" (containts the start points)
+%  expParameter: 
+%         Ludwik        - XX
+%         Gosh          - XX
+%         HocketSherby  - XX
+%         Swift         - XX
+%         Voce          - XX
 
-
-function [out] = extrapolation(inp, varargin)
+function [out] = extrapolation(inp, expParameter, varargin)
 %% Check input
 % Define default values for type
 defaultType = {'Ludwik' 'Ghosh' 'HockettSherby' 'Swift' 'Voce'};
@@ -103,7 +117,7 @@ if any(strcmp(p.Results.type,'Ludwik')) % check if Ludwik extrapolation is wante
     optLudwik.Display = 'Off';
     optLudwik.Lower = [0 0];
     optLudwik.Robust = 'off';
-    optLudwik.StartPoint = [1 0.5];
+    optLudwik.StartPoint = expParameter{1,2};
     optLudwik.Upper = [inf 1];
     optLudwik.TolFun = 1*10^(-10);
     optLudwik.TolX = 1*10^(-10);
@@ -118,8 +132,7 @@ end
 if any(strcmp(p.Results.type,'Ghosh'))
 %     FLSQ = @(x,y, yieldBegin, a)mean(w.*(a(1).*(a(2)+x).^a(3)-yieldBegin-y).^2);
     FLSQ = @(x,y, sigmaXTrueRp, a)sum(w.*(a(1).*(a(2)+x).^a(3)-sigmaXTrueRp-y).^2);
-%     x0 = [1 0.002 0.5];
-    x0 = [1 1 0.5]; % According to med switching from 0.002 to 1 yields better fits
+    x0 = expParameter{2,2};
     lb = [0 0 0];
     ub = [inf 10 1];
 %     fitGhosh = fmincon(@(a)FLSQ(xData,yData,yieldBeginChar,a), x0, [], [], [], [], lb, ub, @(a)nonlconGhosh(yieldBeginChar, a));
@@ -138,7 +151,7 @@ if any(strcmp(p.Results.type,'HockettSherby'))
     optHS.Robust = 'off';
     optHS.Lower = [0 0 0];
     optHS.Upper = [5000 10 10];
-    optHS.StartPoint = [400 1.5 0.58];
+    optHS.StartPoint = expParameter{3,2};
     optHS.Weights = w;
     [fitHS, gofHS] = fit(xData, yData, ftHS, optHS);
 end
@@ -146,8 +159,7 @@ end
 % Swift
 if any(strcmp(p.Results.type,'Swift'))
     FLSQ = @(x,y,a)mean(w.*(a(1).*(a(2)+x).^a(3)-y).^2);
-%     x0 = [1 0.002 0.5];  %% NOTE
-    x0 = [1 0.002 0.5];  % According to med switching from 0.002 to 1 yields better fits
+    x0 = expParameter{4,2};  %% NOTE
     lb = [0 0 0];
     ub = [inf 10 1];
 %     fitSwift = fmincon(@(a)FLSQ(xData,yData,a), x0, [], [], [], [], lb, ub, @(a)nonlconSwift(yieldBegin, a));
@@ -177,7 +189,7 @@ if any(strcmp(p.Results.type,'Voce'))
     optVoce.Display = 'Off';
     optVoce.Lower = [0 0];
     optVoce.Upper = [5000 10];
-    optVoce.StartPoint = [400 1.5];
+    optVoce.StartPoint = expParameter{5,2};
     optVoce.Robust = 'off';
     optVoce.TolFun = 1*10^(-10);
     optVoce.TolX = 1*10^(-10);

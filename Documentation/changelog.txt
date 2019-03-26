@@ -1,12 +1,2 @@
-Version created by Tim Benkert
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Got rid of the Scrollbars in the GUI that did not go away even when maximizing the GUI's window
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Change extrapolation.m
-Changed the initial values of the optimization for Swift and Voce extrapolations from x0 = [1 0.002 0.5]; to x0 = [1 1 0.5];
-This yield more stable behaviour as in some cases the fits have been really bad.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Changed filename of the GUI to a name without any versioning in it.
+26.03.2019, Matthias Eder:
+	German labels transformed to English labels
